@@ -1,0 +1,25 @@
+.footer-social {
+  max-width: 100%;
+  margin: 1.6rem 0 min(11vw, 7rem);
+}
+.footer-social h2 {
+  display: block;
+  margin-bottom: 1rem;
+  font: 600 .8rem/1.5 var(--mono);
+  letter-spacing: .14em;
+  color: #bcdad9;
+}
+.footer-social h2::after { display: none; }
+.social-buttons { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.social-platform { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.social-buttons .sonar-cta {
+  display: inline-flex; align-items: center; justify-content: center; gap: .6rem;
+  min-height: 44px; padding-inline: 1rem;
+  transition: border-color .3s ease, box-shadow .3s ease;
+}
+.social-buttons svg { flex: none; width: 1.1rem; height: 1.1rem; color: var(--cyan); }
+.social-buttons .sonar-cta:hover { border-color: var(--cyan); }
+@media (max-width: 40rem) {
+  .footer-social { margin-bottom: calc(2.6rem + 10vw); }
+  .social-buttons { grid-template-columns: 1fr; }
+}

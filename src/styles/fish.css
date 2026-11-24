@@ -1,0 +1,43 @@
+.fish-water, .fish-plane {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.fish-water {
+  opacity: min(calc(.55 + var(--dive, 0) * .8), calc(1.83 - var(--dive, 0) * 1.45));
+}
+.fish-track {
+  position: absolute;
+  left: 0;
+  width: var(--fish-width);
+  opacity: var(--fish-opacity);
+  animation: fish-cross var(--crossing) linear var(--start) infinite;
+}
+.fish-track.westbound { animation-direction: reverse; }
+.fish-swimmer, .fish-sprite { display: block; }
+.westbound .fish-swimmer { transform: scaleX(-1); }
+.fish-sprite {
+  aspect-ratio: 128 / 52;
+  /* Each row contains one seamless stroke, including the delayed tail and pectoral fin. */
+  background: url('/media/ambient-fish.png') 0 var(--row) / 2400% 300% no-repeat;
+  animation: fish-stroke var(--stroke) steps(24, end) var(--stroke-delay) infinite,
+    fish-sway calc(var(--stroke) * 2) ease-in-out var(--stroke-delay) infinite alternate;
+}
+@keyframes fish-cross {
+  from { transform: translate(-50px, 0); }
+  to { transform: translate(calc(100vw + 50px), var(--rise)); }
+}
+@keyframes fish-stroke { to { background-position-x: calc(-24 * var(--fish-width)); } }
+@keyframes fish-sway {
+  from { transform: translateY(-.6px) rotate(calc(-1 * var(--sway))); }
+  to { transform: translateY(.6px) rotate(var(--sway)); }
+}
+.fish-water[data-paused] :is(.fish-track, .fish-sprite) { animation-play-state: paused; }
+@media (max-width: 48rem) {
+  .fish-plane .fish-track:nth-child(even) { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fish-water { display: none; }
+  .fish-track, .fish-sprite { animation: none; }
+}

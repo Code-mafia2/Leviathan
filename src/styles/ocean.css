@@ -1,0 +1,168 @@
+/* One depth value drives the atmosphere and the instrument. */
+#root { isolation: isolate; }
+:root {
+  --surface-blue: #1B6CA8;
+  --navy: #0A2A43;
+  --abyss: #02070D;
+  --cyan: #3FF5E6;
+  --ember: #E4572E;
+  --white: #E8F1F2;
+}
+.surface-water, .eye, .hatches { pointer-events: none; }
+.ambient-toggle {
+  padding: .4rem .75rem; font: inherit; color: #e8f1f2;
+  background: #082430; border: 1px solid #6e939b; border-radius: .35rem; cursor: pointer;
+}
+.ambient-toggle[type="button"] {
+  position: fixed; z-index: 5;
+  right: max(.2rem, env(safe-area-inset-right)); bottom: max(.65rem, env(safe-area-inset-bottom));
+  display: grid; place-items: center; width: 2.25rem; height: 2.5rem; padding: 0;
+  color: var(--cyan); background: #041921ed; border-color: #539e9e;
+  box-shadow: 0 0 .5rem #3ff5e61a;
+}
+.ambient-toggle:hover { border-color: var(--cyan); }
+@media (prefers-reduced-motion: no-preference) {
+  .ambient-toggle { transition: border-color .25s ease; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .surface-water::before { transform: translateY(clamp(0px, calc(var(--dive, 0) * 360px), 54px)); }
+  .marine-snow { translate: 0 calc(var(--dive, 0) * -24px); }
+  .living-light { translate: 0 calc(var(--dive, 0) * -48px); }
+  .sunlit-water { translate: 0 calc(var(--dive, 0) * -12px); }
+  .canyon-walls { translate: 0 calc(var(--dive, 0) * -26px); }
+  .trench-walls { translate: 0 calc(var(--dive, 0) * -36px); }
+}
+.deep-water {
+  position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none;
+  --navy-mix: clamp(0%, calc(var(--dive, 0) * 366.6667%), 100%);
+  --dark-mix: clamp(0%, calc((var(--dive, 0) * 11 - 3) * 12.5%), 100%);
+  --upper-water: color-mix(in srgb, var(--surface-blue), var(--navy) var(--navy-mix));
+  background-color: color-mix(in srgb, var(--upper-water), var(--abyss) var(--dark-mix));
+}
+.ocean-plane {
+  position: absolute; inset: -40px 0; background-position: center; background-size: cover;
+}
+.sunlit-water {
+  background-image: linear-gradient(180deg, #02070d40, #02070d99), url('/media/sunlit-surface.jpg');
+  opacity: var(--surface-light, .8);
+}
+.canyon-walls {
+  background-image: linear-gradient(#02070d70, transparent 75%), url('/media/canyon.jpg');
+  opacity: var(--canyon-light, 0);
+}
+.trench-walls {
+  background-image: url('/media/deep-trench.jpg'); opacity: var(--trench-light, 0);
+}
+.surface-water {
+  background: none;
+  mask-image: linear-gradient(black 45%, transparent);
+}
+/* The depth envelope and the changing refraction are independent. */
+.light-shafts, .marine-snow, .living-light {
+  position: absolute; inset: 0; pointer-events: none;
+}
+.light-shafts {
+  opacity: var(--sunlight, 1);
+  mask-image: linear-gradient(to bottom, #000 7%, #0009 52%, transparent 92%);
+}
+.light-shafts::before, .light-shafts::after {
+  content: ''; position: absolute; inset: -12% -10%;
+  transform-origin: 48% 0;
+  background: conic-gradient(from 148deg at 51% -8%, transparent 0 8deg,
+    #d5fff52b 10deg, transparent 14deg 22deg, #c8fff53d 25deg,
+    transparent 29deg 38deg, #a1eceb27 42deg, transparent 47deg);
+  animation: refract 21s ease-in-out infinite;
+}
+.light-shafts::after {
+  transform-origin: 56% 0; inset-inline: -3% -17%;
+  animation-duration: 17s; animation-delay: -9s; animation-direction: reverse;
+}
+@keyframes refract {
+  0%, 100% { transform: rotate(-1.4deg) skewX(-1deg); opacity: .47; }
+  44% { transform: rotate(1.6deg) skewX(2deg); opacity: .9; }
+  73% { transform: rotate(.3deg) skewX(-.6deg); opacity: .64; }
+}
+.marine-snow { opacity: clamp(.13, calc(.13 + var(--dive, 0) * .68), .71); }
+.living-light { opacity: clamp(0, calc((var(--dive, 0) - .27) * 1.45), .78); }
+.marine-snow i, .living-light i {
+  position: absolute; width: var(--size); height: var(--size);
+  border-radius: 60% 45%; opacity: var(--strength);
+  background: radial-gradient(ellipse, #c4dedd99, #97bac344 38%, transparent 75%);
+  filter: blur(var(--softness));
+  animation: suspended var(--period) ease-in-out var(--phase) infinite alternate;
+}
+@keyframes suspended {
+  from { transform: translate(0, 20px); }
+  47% { transform: translate(var(--slide), -3px); }
+  to { transform: translate(calc(var(--slide) * -.4), -27px); }
+}
+.living-light i {
+  filter: none;
+  background: radial-gradient(circle, #3FF5E6 0%, #3ff5e659 30%, transparent 73%);
+  box-shadow: 0 0 5px #3ff5e620;
+  animation-name: suspended, breathe;
+  animation-duration: var(--period), calc(var(--period) * .41);
+}
+@keyframes breathe {
+  0%, 100% { opacity: calc(var(--strength) * .18); }
+  52% { opacity: var(--strength); }
+}
+@media (max-width: 48rem) {
+  .marine-snow i:nth-child(n+11), .living-light i:nth-child(n+4) { display: none; }
+}
+.shadow-distance {
+  position: absolute; inset: 0; overflow: hidden; pointer-events: none;
+  /* Surface fade, midwater encounter, then loss of contrast in the trench. */
+  opacity: min(clamp(0, calc((var(--dive, 0) - .04545) * 6), .58),
+               clamp(.24, calc(1.27 - var(--dive, 0)), .58));
+}
+.shadow {
+  position: absolute; left: 0; top: 27%; width: max(172vw, 48rem);
+  height: clamp(14rem, 49vh, 34rem); overflow: visible; pointer-events: none;
+  transform: translateX(100vw);
+  filter: blur(clamp(2px, .25vw, 5px)) drop-shadow(0 -3px 5px #5279893d);
+  mask-image: linear-gradient(165deg, #000a 12%, black 45%, #000b 75%, transparent);
+}.cells i { transition: background-color 900ms, box-shadow 1100ms, border-color 900ms; }
+.cells .lit { border-color: #affff5; }
+footer { overflow: clip; }
+footer > :is(address, p) {
+  max-width: 100%; overflow-wrap: anywhere; color: var(--white);
+  background: var(--abyss); padding-inline: .45rem;
+}
+.eye {
+  position: absolute; z-index: -1; pointer-events: none;
+  width: clamp(5rem, 12vw, 9rem); height: auto; top: .45rem; right: 16%;
+  opacity: 0; transition: opacity 3s ease-in;
+  filter: brightness(1.65);
+}
+.eye.eye-open { opacity: .94; }
+.eye .eyelid { transform-box: fill-box; transform-origin: center; transform: scaleY(.015); }
+.eye-open .eyelid {
+  animation: lid-open 4.2s cubic-bezier(.38, 0, .3, 1) both,
+             lid-blink 29s ease-in-out 8s infinite;
+}
+.eye-open .eyelid.lower { animation-delay: .38s, 8.3s; }
+@keyframes lid-open { from { transform: scaleY(.015); } to { transform: scaleY(1); } }
+@keyframes lid-blink {
+  0%, 88%, 100% { transform: scaleY(1); }
+  92% { transform: scaleY(.045); }
+}
+.fin-edge {
+  position: absolute; bottom: 0; left: -1.5vw; z-index: -1;
+  width: min(29vw, 23rem); height: auto; pointer-events: none;
+  filter: brightness(1.8);
+  mask-image: linear-gradient(to right, black 65%, transparent),
+              linear-gradient(to bottom, transparent, black 19% 77%, transparent);
+  mask-composite: intersect;
+  opacity: clamp(0, calc(var(--dive, 0) * 8 - 7), .96);
+}
+@media (max-width: 40rem) {
+  .fin-edge { width: 27vw; bottom: 3.9rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .shadow { transform: translateX(-29%); opacity: .42; }
+  .marine-snow, .living-light, .light-shafts { display: none; }
+  .eye, .eye.eye-open { opacity: .82; }
+  .eye .eyelid { transform: scaleY(1); }
+}

@@ -1,0 +1,107 @@
+﻿/* Instrument glass and etched ticks, with the original data always readable. */
+#mission dl > div {
+  --screen-height: clamp(4.5rem, 9vw, 7.5rem);
+  padding-top: calc(var(--screen-height) + .75rem);
+  background: #041720;
+  overflow: hidden;
+}
+#mission dl > div:nth-child(1) { --screen: url('/media/sonar-model.jpg'); }
+#mission dl > div:nth-child(2) { --screen: url('/media/bathymetry-console.jpg'); }
+#mission dl > div:nth-child(3) { --screen: url('/media/briefing-room.jpg'); }
+#mission dl > div::before {
+  content: ''; position: absolute; inset: 0 0 auto; height: var(--screen-height);
+  background: linear-gradient(0deg, #041720, transparent 45%),
+    repeating-linear-gradient(0deg, #04172028 0 1px, transparent 1px 4px),
+    var(--screen) center 51% / cover;
+  pointer-events: none;
+}
+@media (min-width: 48.01rem) {
+  #mission .briefing-icon { top: calc(var(--screen-height) + .75rem); }
+}
+.crew-rules {
+  isolation: isolate;
+}
+.crew-rules::before {
+  content: ''; position: absolute; z-index: -1; inset: 0 0 0 37%;
+  background: linear-gradient(90deg, #02070df5, #02070d52),
+    url('/media/amber-corridor.jpg') center / cover;
+  mask-image: radial-gradient(ellipse at 68% 52%, black 14%, transparent 74%);
+  pointer-events: none;
+}
+.registration > h2 {
+  position: relative; isolation: isolate; overflow: hidden;
+  padding: 1rem .8rem; border-inline-start: 2px solid #55959c;
+  background: linear-gradient(90deg, #041720 12%, #041720e6 55%, #0417204d),
+    url('/media/bulkhead-steel.jpg') right 43% / cover;
+}
+#mission dl > div::after {
+  content: ''; position: absolute; top: .5rem; right: .6rem; width: 1.1rem; height: 3px;
+  background: repeating-linear-gradient(90deg, #8be2df 0 1px, transparent 1px 4px);
+  opacity: .6; pointer-events: none;
+}
+.hatch-scene {
+  position: relative; isolation: isolate; overflow: hidden; pointer-events: none;
+  padding-block: clamp(.8rem, 3vw, 2.8rem) .5rem;
+  mask-image: linear-gradient(transparent, black 14% 85%, transparent);
+}
+.hatch-scene::before {
+  content: ''; position: absolute; z-index: -1; inset: -12% 0; opacity: .55;
+  background: url('/media/trial-seabed.jpg') center 55% / cover;
+  mask-image: linear-gradient(90deg, transparent, black 16% 85%, transparent);
+}
+.hatch-bank { position: relative; }
+.hatch-bank::before, .hatch-bank::after { content: ''; position: absolute; inset: 0; z-index: 1; }
+.hatch-bank::before {
+  background: radial-gradient(ellipse 2.3% 4% at 20.5% 23%, #ffba83a8, #e4572e44, transparent),
+    radial-gradient(ellipse 2.2% 4% at 40.4% 23%, #e4572ea6, transparent),
+    radial-gradient(ellipse 2% 4% at 60% 24%, #ffd0a085, transparent),
+    radial-gradient(ellipse 1.5% 3% at 77.5% 40%, #e4572e99, transparent),
+    radial-gradient(ellipse 1.5% 3% at 90% 41%, #e4572e99, transparent);
+}
+.hatch-bank::after {
+  mask-image: radial-gradient(ellipse 9% 37% at 20% 49%, black 65%, transparent),
+    radial-gradient(ellipse 9% 38% at 40% 49%, black 65%, transparent),
+    radial-gradient(ellipse 9% 38% at 60% 49%, black 65%, transparent),
+    radial-gradient(ellipse 5% 25% at 77% 57%, black 65%, transparent),
+    radial-gradient(ellipse 5% 24% at 90% 57%, black 65%, transparent);
+  background: linear-gradient(115deg, transparent 45%, #96e4e51a 50%, transparent 55%) left / 220% 100%;
+}
+.hatch-silt {
+  position: absolute; inset: 3% 2%;
+  background: radial-gradient(2px 1px at 13% 63%, #aed6db91, transparent),
+    radial-gradient(1px 2px at 35% 25%, #aed6db88, transparent),
+    radial-gradient(1px 1px at 68% 38%, #a5dedea6, transparent),
+    radial-gradient(2px 1px at 92% 56%, #9dcdd378, transparent);
+}
+@media (prefers-reduced-motion: no-preference) {
+  #mission[data-entered] dl > div { animation: panel-arrival 1.4s ease-out backwards; }
+  #mission[data-entered] dl > div:nth-child(2) { animation-delay: .13s; }
+  #mission[data-entered] dl > div:nth-child(3) { animation-delay: .26s; }
+  @keyframes panel-arrival {
+    from { opacity: .85; }
+    45% { border-color: #70c8cc; box-shadow: inset 0 0 15px #3ff5e614, 0 0 7px #3ff5e61f; }
+    to { opacity: 1; }
+  }
+  .crew-rules[data-entered] li { animation: rules-arrival 1.1s ease-out backwards; }
+  .crew-rules[data-entered] li:nth-child(2) { animation-delay: .1s; }
+  .crew-rules[data-entered] li:nth-child(3) { animation-delay: .2s; }
+  @keyframes rules-arrival { from { opacity: .85; transform: translateY(4px); } }
+  .hatch-scene::before { transform: translateY(calc((var(--dive, 0) - .45) * -36px)); }
+  .hatch-bank::before { animation: hatch-lamps 14s ease-in-out infinite alternate; }
+  @keyframes hatch-lamps { from { opacity: .32; } to { opacity: .85; } }
+  .hatch-bank::after { animation: metal-reflection 21s ease-in-out infinite alternate; }
+  @keyframes metal-reflection { to { background-position: right; } }
+  .hatch-silt { animation: silt-drift 18s ease-in-out infinite alternate; }
+  @keyframes silt-drift { to { transform: translate(9px,-7px); } }
+  #faq summary::after { transition: transform .45s ease-in-out; }
+  /* Native disclosures stay functional in engines without intrinsic-size transitions. */
+  @supports (interpolate-size: allow-keywords) and selector(details::details-content) {
+    #faq details { interpolate-size: allow-keywords; }
+    #faq details::details-content {
+      block-size: 0; overflow: clip; opacity: 0;
+      transition: block-size .48s ease-in-out, opacity .4s ease,
+        content-visibility .48s allow-discrete;
+    }
+    #faq details[open]::details-content { block-size: auto; opacity: 1; }
+  }
+}

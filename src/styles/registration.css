@@ -1,0 +1,41 @@
+.registration form[aria-busy="true"] button[type="submit"] {
+  color: var(--cyan);
+  border-color: var(--line);
+}
+.registration form:has(.sonar-cta[data-ready]) {
+  border-color: #77c9c9;
+  box-shadow: inset 0 1px 18px #3ff5e609, 0 0 16px #3ff5e61b;
+}
+.registration input:not([type=checkbox]):focus {
+  border-color: var(--cyan);
+  box-shadow: 0 0 0 1px #3ff5e639, inset 0 0 12px #3ff5e609;
+}
+.registration .field-error {
+  color: #ffd5b3;
+  font-size: .875rem;
+}
+.registration-success {
+  display: grid; justify-items: center; gap: 1.2rem; text-align: center;
+  padding: clamp(1.5rem, 4vw, 3rem); border-radius: .7rem;
+  border: 1px solid #63a9af; background: #041a20f5;
+}
+.registration-success p { margin: 0; max-width: 38ch; }
+.crew-check {
+  display: grid; place-items: center; position: relative; pointer-events: none;
+  width: 3.5rem; aspect-ratio: 1; border: 1px solid var(--cyan);
+  border-radius: 50%; color: var(--cyan); box-shadow: 0 0 15px #3ff5e61c;
+}
+.crew-check svg { width: 60%; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+@media (prefers-reduced-motion: no-preference) {
+  .registration form { transition: border-color 1.2s, box-shadow 1.8s; }
+  .registration input { transition: border-color .22s, box-shadow .3s; }
+  .field-error, .crew-status:not(:empty), .registration-success { animation: crew-reveal .45s ease-out; }
+  @keyframes crew-reveal { from { opacity: 0; } to { opacity: 1; } }
+  .crew-check path { stroke-dasharray: 1; animation: crew-tick .85s ease-out .12s backwards; }
+  @keyframes crew-tick { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+  .crew-check::after {
+    content: ''; position: absolute; inset: 0; border: 1px solid currentColor;
+    border-radius: inherit; opacity: 0; animation: crew-echo 1.6s ease-out .55s;
+  }
+  @keyframes crew-echo { from { opacity: .48; transform: scale(.96); } to { opacity: 0; transform: scale(1.45); } }
+}

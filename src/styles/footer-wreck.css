@@ -1,0 +1,29 @@
+/* Keep the artwork in the gap between the fin tip, the eye and the contact row. */
+footer > .footer-wreck {
+  position: absolute;
+  z-index: -2;
+  pointer-events: none;
+  overflow: hidden;
+  left: 29%;
+  top: .35rem;
+  width: min(36vw, 25rem);
+  height: min(25vw, 5.5rem);
+  background: linear-gradient(0deg, #02070d99, transparent 45%, #02070d40),
+    url('/media/trench-wreck.jpg') 54% 54% / cover no-repeat;
+  filter: saturate(.6) brightness(.85);
+  mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, black 42%, transparent 100%);
+  --wreck-reveal: clamp(0, calc(var(--dive, 0) * 11 - 10), 1);
+  opacity: calc(var(--wreck-reveal) * var(--wreck-reveal) * .82);
+}
+@media (max-width: 40rem) {
+  footer > .footer-wreck {
+    left: 28%;
+    width: 24%;
+    height: auto;
+    aspect-ratio: 1.78;
+    top: 1.75rem;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  footer > .footer-wreck { opacity: calc(var(--wreck-reveal) * .48); }
+}
