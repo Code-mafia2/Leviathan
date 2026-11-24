@@ -1,5 +1,5 @@
 import express from 'express'
-import { rateLimit } from 'express-rate-limit'
+import { ipKeyGenerator, rateLimit } from 'express-rate-limit'
 import { registrationData, uncertainMessage, validRequestId } from '../shared/registration.ts'
 
 const failures = new Map(Object.entries({
@@ -30,7 +30,7 @@ async function forward(url, envelope, fetchImpl) {
 }
 
 export function registrationApi(env, fetchImpl = fetch) {
-  const scriptUrl = env.GOOGLE_APPS_SCRIPT_URL || 'https://script.google.com/macros/s/AKfycbykH1EJAYmPo58yfeQsVRh9VT9st7OCpLogOECVEFaSTaQ58REb6t_R5L73CszPZB2f/exec'
+  const scriptUrl = env.GOOGLE_APPS_SCRIPT_URL || ''
   const app = express()
   app.disable('x-powered-by')
   if (env.TRUSTED_PROXY_IP) app.set('trust proxy', env.TRUSTED_PROXY_IP)
@@ -38,6 +38,10 @@ export function registrationApi(env, fetchImpl = fetch) {
   router.use((_req, res, next) => { res.set('Cache-Control', 'no-store'); next() })
   router.use(rateLimit({
     windowMs: 600000, limit: 30, standardHeaders: 'draft-7', legacyHeaders: false,
+    // Vercel sets this header at its edge. Outside Vercel, use Express's configured client IP.
+    keyGenerator: req => ipKeyGenerator(env.VERCEL === '1'
+      ? String(req.headers['x-vercel-forwarded-for'] || req.socket.remoteAddress).split(',')[0].trim()
+      : req.ip),
     message: { ok: false, message: 'Too many registration attempts. Please try again in ten minutes.' },
   }))
   let active = 0
@@ -46,6 +50,10 @@ export function registrationApi(env, fetchImpl = fetch) {
     if (!req.is('application/json')) return res.status(415).json({ ok: false, message: 'Expected a JSON registration.' })
     next()
   }, express.json({ limit: '12kb', inflate: false }), async (req, res) => {
+    // Function runtimes can supply a parsed body before Express reads the stream.
+    if (Buffer.byteLength(JSON.stringify(req.body) || '') > 12288) {
+      return res.status(413).json({ ok: false, message: 'Registration is too large.' })
+    }
     const requestId = req.body?.requestId
     if (typeof requestId !== 'string' || !validRequestId.test(requestId)) {
       return res.status(400).json({ ok: false, message: 'Invalid registration request ID.' })
